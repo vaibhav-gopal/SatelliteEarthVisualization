@@ -20,6 +20,13 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 (Also could be [http://localhost:5000](http://localhost:5000))
 
+Controls:
+- Use the mouse + left click to orbit around a point
+- Right click to pan (if enabled)
+- Left click (or shift left click for multiple) to select objects
+- Space bar to focus / move camera to first selected object
+- Top right UI section includes multiple controls to change the parameters of the visualization
+
 TODO:
 - Set up NGINX to automate startup
 - Optimize satellite / space station instancing by using buffer geometry
