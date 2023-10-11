@@ -19,3 +19,8 @@ npm run dev
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 (Also could be [http://localhost:5000](http://localhost:5000))
+
+TODO:
+- Set up NGINX to automate startup
+- Optimize satellite / space station instancing by using buffer geometry
+- Display satellite information on side screen, add ability to search through satellites
