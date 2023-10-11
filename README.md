@@ -2,12 +2,13 @@
 
 This is an earth satellite / space station visuallization web app built in React / Next.js using Three.js as the graphics library. Additionally uses
 python and flask as a backend to calculate from geodetic coordinates in a TLE format to geocentric coordinates in a JSON format (All information found on
-CelesTrak).
+CelesTrak). 
 
-First run the python API endpoint (make sure you have the proper PIP and NPM packages installed):
+First run the python API endpoint (make sure you have the proper PIP and NPM packages installed and that you are in the correct directory):
 
 ```
-python Python\ /API\ Endpoint/start.py
+cd Python\ API\ Endpoint
+python start.py
 ```
 
 Wait, then run the development server (in a different shell instance):
@@ -30,4 +31,7 @@ Controls:
 TODO:
 - Set up NGINX to automate startup
 - Optimize satellite / space station instancing by using buffer geometry
+- Make it look nicer...
 - Display satellite information on side screen, add ability to search through satellites
+
+![Screen shot of space station / satellite visualizer](screenshot.png?raw=true "Screenshot of Visualizer")

@@ -1,7 +1,6 @@
 import ephem #calculating coordinates from sat data
 from pyproj import Transformer #converting b/n coordinate systems
 import json #for json files
-from datetime import date #getting current date
 import math
 import filecmp # compare local "cached" file with file from api
 import requests # get api request
@@ -47,77 +46,81 @@ def calculateSatSpace():
     print("Loading satellite data")
     # calculate satellite data
     for i in range(len(sat) // 3):
-        line1 = sat[i*3]
-        line2 = sat[(i*3)+1]
-        line3 = sat[(i*3)+2]
-        obj = ephem.readtle(line1, line2, line3) #read tle data
-        tddate = date.today().strftime("%Y/%M/%D")
-        obj.compute(tddate) #compute satellite location based on todays date
-        # print('%s %s %s' % (obj.sublong, obj.sublat, obj.elevation)) #measured in longitute, latitute and meters for elevation
-        # print('Given: %f %f %f' % (dmsToDeg(obj.sublong), dmsToDeg(obj.sublat), obj.elevation))
-        trans_GPS_to_XYZ = Transformer.from_crs(4979, 4978, always_xy=True) #two numbers here indicate the type of coordinate system we are converting to (geodetic GPS to geocentric cartesian)
-        (long, lat) = (dmsToDeg(obj.sublong), dmsToDeg(obj.sublat))
-        (x,y,z) = trans_GPS_to_XYZ.transform(long, lat, obj.elevation) #this calculation might take some time
-        (xs, ys, zs) = (x / 1000000, y / 1000000, z / 1000000)
-        dist = math.sqrt((xs ** 2) + (ys ** 2) + (zs ** 2))
-        # print('Output: %f %f %f' % (x, y, z))
-        satdata.append({
-            'NAME': line1,
-            'CATALOGNUMBER': line2[2:7], #satellite catalog number (NORAD)
-            'CLASS': line2[7], #U: unclassified, C: classified, S: Secret
-            'LAUNCHYEAR': line2[9:11], #last 2 digits of launch year
-            'LAUNCHNUMBER': line2[11:14], #launch number of the year
-            'LAUNCHPIECE': line2[14:17], #piece of the launch
-            'X': x,
-            'Y': y,
-            'Z': z,
-            'XS': xs,
-            'YS': ys,
-            'ZS': zs,
-            'DIST': dist,
-            'LONG': long,
-            'LAT': lat,
-            'ELEVATION': obj.elevation,
-            'TYPE': 'Satellite'
-        })
+        try:
+            line1 = sat[i*3]
+            line2 = sat[(i*3)+1]
+            line3 = sat[(i*3)+2]
+            obj = ephem.readtle(line1, line2, line3) #read tle data
+            obj.compute() #compute satellite location based on todays date
+            # print('%s %s %s' % (obj.sublong, obj.sublat, obj.elevation)) #measured in longitute, latitute and meters for elevation
+            # print('Given: %f %f %f' % (dmsToDeg(obj.sublong), dmsToDeg(obj.sublat), obj.elevation))
+            trans_GPS_to_XYZ = Transformer.from_crs(4979, 4978, always_xy=True) #two numbers here indicate the type of coordinate system we are converting to (geodetic GPS to geocentric cartesian)
+            (long, lat) = (dmsToDeg(obj.sublong), dmsToDeg(obj.sublat))
+            (x,y,z) = trans_GPS_to_XYZ.transform(long, lat, obj.elevation) #this calculation might take some time
+            (xs, ys, zs) = (x / 1000000, y / 1000000, z / 1000000)
+            dist = math.sqrt((xs ** 2) + (ys ** 2) + (zs ** 2))
+            # print('Output: %f %f %f' % (x, y, z))
+            satdata.append({
+                'NAME': line1,
+                'CATALOGNUMBER': line2[2:7], #satellite catalog number (NORAD)
+                'CLASS': line2[7], #U: unclassified, C: classified, S: Secret
+                'LAUNCHYEAR': line2[9:11], #last 2 digits of launch year
+                'LAUNCHNUMBER': line2[11:14], #launch number of the year
+                'LAUNCHPIECE': line2[14:17], #piece of the launch
+                'X': x,
+                'Y': y,
+                'Z': z,
+                'XS': xs,
+                'YS': ys,
+                'ZS': zs,
+                'DIST': dist,
+                'LONG': long,
+                'LAT': lat,
+                'ELEVATION': obj.elevation,
+                'TYPE': 'Satellite'
+            })
+        except:
+            print("Tried to calculate the position of: ", sat[i*3], " --> FAILED")
     print("Finished loading satellite data")
 
     print("Loading space station data")
     #calculate space station data
     for i in range(len(space) // 3):
-        line1 = space[i*3]
-        line2 = space[(i*3) + 1]
-        line3 = space[(i*3) + 2]
-        obj = ephem.readtle(line1, line2, line3)
-        tddate = date.today().strftime("%Y/%M/%D")
-        obj.compute(tddate)
-        # print('%s %s %s' % (obj.sublong, obj.sublat, obj.elevation))
-        # print('Given: %f %f %f' % (dmsToDeg(obj.sublong), dmsToDeg(obj.sublat), obj.elevation))
-        trans_GPS_to_XYZ = Transformer.from_crs(4979, 4978, always_xy=True) #two numbers here indicate the type of coordinate system we are converting to (geodetic GPS to geocentric cartesian)
-        (long, lat) = (dmsToDeg(obj.sublong), dmsToDeg(obj.sublat))
-        (x,y,z) = trans_GPS_to_XYZ.transform(long, lat, obj.elevation) #this calculation might take some time
-        (xs, ys, zs) = (x / 1000000, y / 1000000, z / 1000000)
-        dist = math.sqrt((xs ** 2) + (ys ** 2) + (zs ** 2))
-        # print('Output: %f %f %f' % (x / 1000000, y / 1000000, z/ 1000000))
-        spacedata.append({
-            'NAME': line1,
-            'CATALOGNUMBER': line2[2:7], #satellite catalog number (NORAD)
-            'CLASS': line2[7], #U: unclassified, C: classified, S: Secret
-            'LAUNCHYEAR': line2[9:11], #last 2 digits of launch year
-            'LAUNCHNUMBER': line2[11:14], #launch number of the year
-            'LAUNCHPIECE': line2[14:17], #piece of the launch
-            'X': x,
-            'Y': y,
-            'Z': z,
-            'XS': xs,
-            'YS': ys,
-            'ZS': zs,
-            'DIST': dist,
-            'LONG': long,
-            'LAT': lat,
-            'ELEVATION': obj.elevation,
-            'TYPE': 'Station'
-        })
+        try:
+            line1 = space[i*3]
+            line2 = space[(i*3) + 1]
+            line3 = space[(i*3) + 2]
+            obj = ephem.readtle(line1, line2, line3)
+            obj.compute()
+            # print('%s %s %s' % (obj.sublong, obj.sublat, obj.elevation))
+            # print('Given: %f %f %f' % (dmsToDeg(obj.sublong), dmsToDeg(obj.sublat), obj.elevation))
+            trans_GPS_to_XYZ = Transformer.from_crs(4979, 4978, always_xy=True) #two numbers here indicate the type of coordinate system we are converting to (geodetic GPS to geocentric cartesian)
+            (long, lat) = (dmsToDeg(obj.sublong), dmsToDeg(obj.sublat))
+            (x,y,z) = trans_GPS_to_XYZ.transform(long, lat, obj.elevation) #this calculation might take some time
+            (xs, ys, zs) = (x / 1000000, y / 1000000, z / 1000000)
+            dist = math.sqrt((xs ** 2) + (ys ** 2) + (zs ** 2))
+            # print('Output: %f %f %f' % (x / 1000000, y / 1000000, z/ 1000000))
+            spacedata.append({
+                'NAME': line1,
+                'CATALOGNUMBER': line2[2:7], #satellite catalog number (NORAD)
+                'CLASS': line2[7], #U: unclassified, C: classified, S: Secret
+                'LAUNCHYEAR': line2[9:11], #last 2 digits of launch year
+                'LAUNCHNUMBER': line2[11:14], #launch number of the year
+                'LAUNCHPIECE': line2[14:17], #piece of the launch
+                'X': x,
+                'Y': y,
+                'Z': z,
+                'XS': xs,
+                'YS': ys,
+                'ZS': zs,
+                'DIST': dist,
+                'LONG': long,
+                'LAT': lat,
+                'ELEVATION': obj.elevation,
+                'TYPE': 'Station'
+            })
+        except:
+            print("Tried to calculate the position of: ", space[i*3], " --> FAILED")
     print("Finished loading space station data")
 
     # print(satdata[0], spacedata[0])
