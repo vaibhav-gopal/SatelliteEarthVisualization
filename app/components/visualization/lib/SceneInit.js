@@ -349,7 +349,6 @@ export default class ThreeScene {
             case 32:
                 if (this.selectedObjects.length != 0) {
                     this.controls.target.copy(this.selectedObjects[0].position);
-                    this.controls.dolly
                 }
                 break;
             case 27:
