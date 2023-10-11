@@ -1,6 +1,10 @@
 # Getting Started
 
-First run the python API endpoint:
+This is an earth satellite / space station visuallization web app built in React / Next.js using Three.js as the graphics library. Additionally uses
+python as a backend to calculate from geodetic coordinates in a TLE format to geocentric coordinates in a JSON format (All information found on
+CelesTrak).
+
+First run the python API endpoint (make sure you have the proper packages installed):
 
 ```
 python Python\ /API\ Endpoint/start.py
